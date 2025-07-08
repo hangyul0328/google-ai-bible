@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>디지털 성경</title>
+    <link rel="stylesheet" href="index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.8.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Home Screen -->
+        <section id="home-screen" class="screen active">
+            <div class="home-content">
+                <div class="home-header">
+                    <h1 class="home-title">디지털 성경</h1>
+                    <h2 class="home-subtitle">오늘의 말씀</h2>
+                </div>
+                <div id="verse-of-the-day-card" title="클릭해서 새로운 구절 보기">
+                    <div class="verse-placeholder">
+                        <div class="shine"></div>
+                    </div>
+                </div>
+                <div class="home-actions">
+                    <button id="start-reading-btn">성경 읽기 시작</button>
+                    <button id="continue-reading-btn" class="secondary-action-btn" disabled>이어 읽기</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reader Screen -->
+        <section id="reader-screen" class="screen">
+            <button id="menu-toggle" aria-label="메뉴 열기" aria-controls="sidebar" aria-expanded="false">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div id="overlay"></div>
+
+            <nav id="sidebar">
+                <div class="sidebar-header">
+                    <button id="home-btn" class="nav-button">홈</button>
+                    <h1>디지털 성경</h1>
+                </div>
+                <div class="nav-item">
+                    <label for="testament-select">구분</label>
+                    <select id="testament-select" aria-label="구약/신약 선택">
+                        <option value="all">전체</option>
+                        <option value="old">구약</option>
+                        <option value="new">신약</option>
+                    </select>
+                </div>
+                <div class="nav-item">
+                    <label for="book-select">성경</label>
+                    <select id="book-select" aria-label="성경 책 선택">
+                        <optgroup label="구약 성경">
+                            <option value="genesis">창세기</option>
+                            <option value="exodus">출애굽기</option>
+                            <option value="leviticus">레위기</option>
+                            <option value="numbers">민수기</option>
+                            <option value="deuteronomy">신명기</option>
+                            <option value="joshua">여호수아</option>
+                            <option value="judges">사사기</option>
+                            <option value="ruth">룻기</option>
+                            <option value="1samuel">사무엘상</option>
+                            <option value="2samuel">사무엘하</option>
+                            <option value="1kings">열왕기상</option>
+                            <option value="2kings">열왕기하</option>
+                            <option value="1chronicles">역대상</option>
+                            <option value="2chronicles">역대하</option>
+                            <option value="ezra">에스라</option>
+                            <option value="nehemiah">느헤미야</option>
+                            <option value="esther">에스더</option>
+                            <option value="job">욥기</option>
+                            <option value="psalms">시편</option>
+                            <option value="proverbs">잠언</option>
+                            <option value="ecclesiastes">전도서</option>
+                            <option value="songofsolomon">아가</option>
+                            <option value="isaiah">이사야</option>
+                            <option value="jeremiah">예레미야</option>
+                            <option value="lamentations">예레미야애가</option>
+                            <option value="ezekiel">에스겔</option>
+                            <option value="daniel">다니엘</option>
+                            <option value="hosea">호세아</option>
+                            <option value="joel">요엘</option>
+                            <option value="amos">아모스</option>
+                            <option value="obadiah">오바댜</option>
+                            <option value="jonah">요나</option>
+                            <option value="micah">미가</option>
+                            <option value="nahum">나훔</option>
+                            <option value="habakkuk">하박국</option>
+                            <option value="zephaniah">스바냐</option>
+                            <option value="haggai">학개</option>
+                            <option value="zechariah">스가랴</option>
+                            <option value="malachi">말라기</option>
+                        </optgroup>
+                        <optgroup label="신약 성경">
+                            <option value="matthew">마태복음</option>
+                            <option value="mark">마가복음</option>
+                            <option value="luke">누가복음</option>
+                            <option value="john">요한복음</option>
+                            <option value="acts">사도행전</option>
+                            <option value="romans">로마서</option>
+                            <option value="1corinthians">고린도전서</option>
+                            <option value="2corinthians">고린도후서</option>
+                            <option value="galatians">갈라디아서</option>
+                            <option value="ephesians">에베소서</option>
+                            <option value="philippians">빌립보서</option>
+                            <option value="colossians">골로새서</option>
+                            <option value="1thessalonians">데살로니가전서</option>
+                            <option value="2thessalonians">데살로니가후서</option>
+                            <option value="1timothy">디모데전서</option>
+                            <option value="2timothy">디모데후서</option>
+                            <option value="titus">디도서</option>
+                            <option value="philemon">빌레몬서</option>
+                            <option value="hebrews">히브리서</option>
+                            <option value="james">야고보서</option>
+                            <option value="1peter">베드로전서</option>
+                            <option value="2peter">베드로후서</option>
+                            <option value="1john">요한1서</option>
+                            <option value="2john">요한2서</option>
+                            <option value="3john">요한3서</option>
+                            <option value="jude">유다서</option>
+                            <option value="revelation">요한계시록</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <div class="nav-item">
+                    <label for="chapter-select">장</label>
+                    <select id="chapter-select" aria-label="장 선택">
+                        <!-- 챕터 옵션은 JS로 동적으로 추가됩니다. -->
+                    </select>
+                </div>
+                <div class="nav-item-footer">
+                    <button id="confirm-selection-btn" disabled>선택 완료</button>
+                </div>
+            </nav>
+            <div id="root">
+                <main id="main-container">
+                    <div id="chapter-nav-container">
+                        <button id="prev-chapter-btn" aria-label="이전 장" disabled>&lt;</button>
+                        <button id="next-chapter-btn" aria-label="다음 장" disabled>&gt;</button>
+                    </div>
+                    <div id="bible-content">
+                        <!-- 성경 본문이 여기에 동적으로 추가됩니다. -->
+                    </div>
+                </main>
+            </div>
+        </section>
+    </div>
+
+    <script type="module" src="index.tsx"></script>
+<script type="module" src="/index.tsx"></script>
+</body>
+</html>
