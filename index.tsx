@@ -1,8 +1,40 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
-*/
-import { GoogleGenAI } from "@google/genai";
+// 전역 함수로 햄버거 메뉴 토글 함수 추가
+function toggleMenu() {
+    console.log('Global toggleMenu function called');
+    const menuToggle = document.getElementById('menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    
+    if (!menuToggle || !sidebar || !overlay) {
+        console.error('Required elements not found:', {
+            menuToggle: !!menuToggle,
+            sidebar: !!sidebar,
+            overlay: !!overlay
+        });
+        return;
+    }
+    
+    const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+    console.log('Is expanded:', isExpanded);
+    console.log('Sidebar classes before:', sidebar.className);
+    
+    if (isExpanded) {
+        console.log('Closing sidebar');
+        sidebar.classList.remove('open');
+        overlay.classList.remove('visible');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.setAttribute('aria-label', '메뉴 열기');
+    } else {
+        console.log('Opening sidebar');
+        sidebar.classList.add('open');
+        overlay.classList.add('visible');
+        menuToggle.setAttribute('aria-expanded', 'true');
+        menuToggle.setAttribute('aria-label', '메뉴 닫기');
+    }
+    
+    console.log('Sidebar classes after:', sidebar.className);
+    console.log('Overlay classes after:', overlay.className);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Element References ---
@@ -11,32 +43,50 @@ document.addEventListener('DOMContentLoaded', () => {
     const verseOfTheDayCard = document.getElementById('verse-of-the-day-card') as HTMLDivElement;
     const startReadingBtn = document.getElementById('start-reading-btn') as HTMLButtonElement;
     const continueReadingBtn = document.getElementById('continue-reading-btn') as HTMLButtonElement;
-    const homeBtn = document.getElementById('home-btn') as HTMLButtonElement;
+    const floatingHomeBtn = document.getElementById('floating-home-btn') as HTMLButtonElement;
+    const currentBookTitle = document.getElementById('current-book-title') as HTMLHeadingElement;
     
     const contentEl = document.getElementById('bible-content') as HTMLDivElement;
-    const testamentSelect = document.getElementById('testament-select') as HTMLSelectElement;
-    const bookSelect = document.getElementById('book-select') as HTMLSelectElement;
-    const chapterSelect = document.getElementById('chapter-select') as HTMLSelectElement;
     const menuToggle = document.getElementById('menu-toggle') as HTMLButtonElement;
     const sidebar = document.getElementById('sidebar') as HTMLElement;
     const overlay = document.getElementById('overlay') as HTMLDivElement;
+    const testamentSelect = document.getElementById('testament-select') as HTMLSelectElement;
+    const bookSelect = document.getElementById('book-select') as HTMLSelectElement;
+    const chapterSelect = document.getElementById('chapter-select') as HTMLSelectElement;
+    const confirmSelectionBtn = document.getElementById('confirm-selection-btn') as HTMLButtonElement;
     const prevChapterBtn = document.getElementById('prev-chapter-btn') as HTMLButtonElement;
     const nextChapterBtn = document.getElementById('next-chapter-btn') as HTMLButtonElement;
-    const confirmSelectionBtn = document.getElementById('confirm-selection-btn') as HTMLButtonElement;
 
     // --- Error Handling for Missing Elements ---
-    if (!homeScreen || !readerScreen || !verseOfTheDayCard || !startReadingBtn || !continueReadingBtn || !homeBtn || !contentEl || !testamentSelect || !bookSelect || !chapterSelect || !menuToggle || !sidebar || !overlay || !prevChapterBtn || !nextChapterBtn || !confirmSelectionBtn) {
+    if (!homeScreen || !readerScreen || !verseOfTheDayCard || !startReadingBtn || !continueReadingBtn || !floatingHomeBtn || !contentEl || !currentBookTitle || !menuToggle || !sidebar || !overlay || !prevChapterBtn || !nextChapterBtn) {
         console.error("One or more required elements were not found in the DOM. App cannot start.");
+        console.error("Missing elements:", {
+            homeScreen: !!homeScreen,
+            readerScreen: !!readerScreen,
+            verseOfTheDayCard: !!verseOfTheDayCard,
+            startReadingBtn: !!startReadingBtn,
+            continueReadingBtn: !!continueReadingBtn,
+            floatingHomeBtn: !!floatingHomeBtn,
+            contentEl: !!contentEl,
+            currentBookTitle: !!currentBookTitle,
+            menuToggle: !!menuToggle,
+            sidebar: !!sidebar,
+            overlay: !!overlay,
+            prevChapterBtn: !!prevChapterBtn,
+            nextChapterBtn: !!nextChapterBtn
+        });
         if (document.body) {
             document.body.innerHTML = '<h1>Error: Application components failed to load. Please refresh the page.</h1>';
         }
         return;
     }
 
-    // --- Application State and API Initialization ---
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    // --- Application State ---
     const LAST_READ_KEY = 'digital_bible_last_read';
     let verseOfTheDayLoaded = false;
+    let currentBook = '창세기';
+    let currentChapter = 1;
+    let maxChapters = 1;
 
     // --- Screen Management & Routing ---
 
@@ -68,6 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function displayHomeScreen() {
+        // 화면 전환을 확실하게
+        readerScreen.style.display = 'none';
+        homeScreen.style.display = 'flex';
         homeScreen.classList.add('active');
         readerScreen.classList.remove('active');
         if (!verseOfTheDayLoaded) {
@@ -78,72 +131,50 @@ document.addEventListener('DOMContentLoaded', () => {
     function displayReaderScreen(options: { book: string, chapter: number }) {
         const { book, chapter } = options;
 
-        const bookExists = Array.from(bookSelect.options).some(opt => opt.value === book);
-
-        if (!bookExists) {
-            // Handles invalid book names from the URL (e.g. "창세기" from old localStorage).
-            // It redirects to a safe default URL, which will trigger the router again.
-            console.warn(`Book "${book}" not found, redirecting to a safe default.`);
-            navigateTo('/read?book=genesis&chapter=1', true);
-            return; // Stop execution of this invalid route.
-        }
-
-        // If the book is valid, proceed.
+        // 기본적으로 창세기 1장을 보여줍니다
+        const bookName = "창세기";
+        const chapterNum = 1;
+        
+        // 화면 전환을 확실하게
+        homeScreen.style.display = 'none';
+        readerScreen.style.display = 'block';
         readerScreen.classList.add('active');
         homeScreen.classList.remove('active');
-        bookSelect.value = book;
-        loadBook(book, { targetChapter: chapter, render: true });
+        
+        currentBookTitle.textContent = `${bookName} ${chapterNum}장`;
+        loadBook("창세기", { targetChapter: chapterNum, render: true });
+        updateChapterNavigation();
     }
 
     // --- Core Data Fetching and Rendering Functions ---
     
-    async function loadVerseOfTheDay() {
+    function loadVerseOfTheDay() {
         if (verseOfTheDayLoaded) return;
         verseOfTheDayLoaded = true;
-        verseOfTheDayCard.innerHTML = `<div class="verse-placeholder"><div class="shine"></div></div>`;
-        try {
-            const prompt = `Give me one inspiring Bible verse in Korean. Respond ONLY in pure JSON format with two keys: "reference" (e.g., "요한복음 3:16") and "text" (the verse content). Do not include any markdown formatting.`;
-
-            const response = await ai.models.generateContent({
-                model: "gemini-2.5-flash-preview-04-17",
-                contents: prompt,
-                config: {
-                    responseMimeType: "application/json",
-                },
-            });
-            
-            let jsonStr = response.text.trim();
-            const verseData = JSON.parse(jsonStr);
-
-            if (verseData.text && verseData.reference) {
-                verseOfTheDayCard.innerHTML = `
-                    <p>"${verseData.text}"</p>
-                    <footer>${verseData.reference}</footer>
-                `;
-            } else {
-                throw new Error("Invalid verse data format received.");
-            }
-
-        } catch (error) {
-            console.error("Error fetching verse of the day:", error);
-            verseOfTheDayCard.innerHTML = `<p>오늘의 말씀을 불러오는 데 실패했습니다.</p><footer>클릭하여 다시 시도</footer>`;
-            verseOfTheDayLoaded = false;
-        }
+        verseOfTheDayCard.innerHTML = `
+            <p>"하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 그를 믿는 자마다 멸망하지 않고 영생을 얻게 하려 하심이라"</p>
+            <footer>요한복음 3:16</footer>
+        `;
     }
 
     async function renderChapter(chapter: number) {
-        const bookName = bookSelect.options[bookSelect.selectedIndex]?.text;
+        const bookName = bookSelect.options[bookSelect.selectedIndex]?.text || bookSelect.value;
         const bookKey = bookSelect.value;
-        if (!bookName || !chapter) {
-            contentEl.innerHTML = '<p>성경과 장을 선택해주세요.</p>';
+        
+        if (!chapter) {
+            contentEl.innerHTML = '<p>장을 선택해주세요.</p>';
             return;
         }
 
+        // 현재 상태 업데이트
+        currentBook = bookName;
+        currentChapter = chapter;
+
         contentEl.innerHTML = '<p>본문 로딩 중...</p>';
         try {
-            const bookDataResponse = await fetch(`${bookKey}.json`);
+            const bookDataResponse = await fetch(`old/${bookKey}.json`);
             if (!bookDataResponse.ok) {
-                throw new Error(`Bible data file not found for: ${bookKey}.json`);
+                throw new Error(`Bible data file not found for: old/${bookKey}.json`);
             }
             const text = await bookDataResponse.text();
             const bookData = text ? JSON.parse(text) : {};
@@ -153,7 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
                  throw new Error(`Chapter ${chapter} content is missing or invalid in ${bookKey}.json`);
             }
 
-            const chapterTitle = `<h2 class="chapter-title">${bookName} ${chapter}장</h2>`;
             const versesHtml = verses.map((verseText: string, index: number) => {
                 return `
                   <div class="verse">
@@ -162,21 +192,21 @@ document.addEventListener('DOMContentLoaded', () => {
                   </div>
                 `;
             }).join('');
-            contentEl.innerHTML = chapterTitle + versesHtml;
+            contentEl.innerHTML = versesHtml;
 
             const lastRead = { book: bookKey, chapter: chapter };
             localStorage.setItem(LAST_READ_KEY, JSON.stringify(lastRead));
             continueReadingBtn.disabled = false;
             
+            // 네비게이션 업데이트
+            updateChapterNavigation();
+            
             const newPath = `/read?book=${bookKey}&chapter=${chapter}`;
             navigateTo(newPath, true);
-
-            updateNavButtonsState();
 
         } catch (error) {
             console.error("Error rendering chapter:", error);
             contentEl.innerHTML = '<p>본문을 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</p>';
-            updateNavButtonsState();
         }
     }
 
@@ -195,51 +225,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         chapterSelect.innerHTML = '<option>로딩 중...</option>';
         chapterSelect.disabled = true;
-        updateNavButtonsState();
         
         try {
-            const bookDataResponse = await fetch(`${bookKey}.json`);
+            const bookDataResponse = await fetch(`old/${bookKey}.json`);
             if (!bookDataResponse.ok) {
-                throw new Error(`Bible data file not found for: ${bookKey}.json`);
+                throw new Error(`Bible data file not found for: old/${bookKey}.json`);
             }
 
             const text = await bookDataResponse.text();
-            // Gracefully handle empty or malformed JSON files.
             const bookData = text ? JSON.parse(text) : {};
             const chapterCount = Object.keys(bookData).length;
-            const bookName = Array.from(bookSelect.options).find(opt => opt.value === bookKey)?.text || bookKey;
+            const bookName = bookKey;
+            
+            // 최대 장 수 업데이트
+            maxChapters = chapterCount;
 
             if (chapterCount <= 0) {
                 if (render) {
-                    contentEl.innerHTML = `<h2 class="chapter-title">${bookName}</h2><p>책 요약 정보를 생성 중입니다...</p>`;
-                    try {
-                        const prompt = `Please provide a brief, one-paragraph summary of the book of ${bookKey} from the Bible, in Korean.`;
-                        const response = await ai.models.generateContent({
-                            model: "gemini-2.5-flash-preview-04-17",
-                            contents: prompt,
-                        });
-                        const summary = response.text;
-                        contentEl.innerHTML = `
-                            <h2 class="chapter-title">${bookName}</h2>
-                            <div class="summary-card">
-                                <h3>책 소개</h3>
-                                <p>${summary}</p>
-                                <p class="notice">이 책의 전체 내용은 현재 준비 중입니다. 곧 업데이트될 예정입니다.</p>
-                            </div>
-                        `;
-                    } catch (summaryError) {
-                        console.error(`Error generating summary for ${bookName}:`, summaryError);
-                        contentEl.innerHTML = `<h2 class="chapter-title">${bookName}</h2><p>해당 성경의 내용은 현재 준비 중입니다.</p>`;
-                    }
+                    contentEl.innerHTML = `
+                        <div class="summary-card">
+                            <h3>책 소개</h3>
+                            <p>이 책의 전체 내용은 현재 준비 중입니다. 곧 업데이트될 예정입니다.</p>
+                        </div>
+                    `;
                 }
                 
                 chapterSelect.innerHTML = `<option value="">준비 중</option>`;
                 chapterSelect.disabled = true;
                 confirmSelectionBtn.disabled = true;
-                updateNavButtonsState();
-                return; // Gracefully exit
+                return;
             }
-
 
             chapterSelect.innerHTML = '';
             for (let i = 1; i <= chapterCount; i++) {
@@ -265,40 +280,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error("Error loading book:", error);
-            const bookName = Array.from(bookSelect.options).find(opt => opt.value === bookKey)?.text || bookKey;
-            const errorMessage = `<p>'${bookName}' 책의 데이터를 불러오는 중 오류가 발생했습니다. 파일이 손상되었을 수 있습니다.</p>`;
+            const errorMessage = `<p>'${bookKey}' 책의 데이터를 불러오는 중 오류가 발생했습니다. 파일이 손상되었을 수 있습니다.</p>`;
             if(render) {
                 contentEl.innerHTML = errorMessage;
             }
             chapterSelect.innerHTML = '<option>오류</option>';
             chapterSelect.disabled = true;
             confirmSelectionBtn.disabled = true;
-            updateNavButtonsState();
         }
     }
 
     // --- UI Helper Functions ---
 
-    function updateNavButtonsState() {
-        const currentChapter = parseInt(chapterSelect.value, 10);
-        const totalChapters = chapterSelect.options.length;
-
-        if (isNaN(currentChapter) || totalChapters === 0 || chapterSelect.disabled) {
-            prevChapterBtn.disabled = true;
-            nextChapterBtn.disabled = true;
-            return;
-        }
-
-        const isFirstChapter = currentChapter <= 1;
-        const isLastChapter = currentChapter >= totalChapters;
-
-        const visibleBookOptions = Array.from(bookSelect.options).filter(opt => opt.parentElement?.matches('optgroup[style*="display: none"]') === false);
-        const currentVisibleBookIndex = visibleBookOptions.findIndex(opt => opt.value === bookSelect.value);
-
-        prevChapterBtn.disabled = isFirstChapter && currentVisibleBookIndex === 0;
-        nextChapterBtn.disabled = isLastChapter && currentVisibleBookIndex === visibleBookOptions.length - 1;
+    function closeSidebar() {
+        console.log('Closing sidebar');
+        console.log('Sidebar element:', sidebar);
+        console.log('Overlay element:', overlay);
+        sidebar.classList.remove('open');
+        overlay.classList.remove('visible');
+        menuToggle.setAttribute('aria-expanded', 'false');
+        menuToggle.setAttribute('aria-label', '메뉴 열기');
+        console.log('Sidebar classes after close:', sidebar.className);
+        console.log('Overlay classes after close:', overlay.className);
     }
 
+    function openSidebar() {
+        console.log('Opening sidebar');
+        console.log('Sidebar element:', sidebar);
+        console.log('Overlay element:', overlay);
+        sidebar.classList.add('open');
+        overlay.classList.add('visible');
+        menuToggle.setAttribute('aria-expanded', 'true');
+        menuToggle.setAttribute('aria-label', '메뉴 닫기');
+        console.log('Sidebar classes after open:', sidebar.className);
+        console.log('Overlay classes after open:', overlay.className);
+    }
 
     function filterBookList() {
         const filter = testamentSelect.value;
@@ -310,60 +326,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (filter === 'old') {
             if (newTestamentGroup) newTestamentGroup.style.display = 'none';
-            bookSelect.value = oldTestamentGroup?.querySelector('option')?.value || 'genesis';
+            bookSelect.value = oldTestamentGroup?.querySelector('option')?.value || '창세기';
         } else if (filter === 'new') {
             if (oldTestamentGroup) oldTestamentGroup.style.display = 'none';
-            bookSelect.value = newTestamentGroup?.querySelector('option')?.value || 'matthew';
+            bookSelect.value = newTestamentGroup?.querySelector('option')?.value || '마태복음';
         } else {
-             bookSelect.value = bookSelect.querySelector('option')?.value || 'genesis';
+             bookSelect.value = bookSelect.querySelector('option')?.value || '창세기';
         }
         
         loadBook(bookSelect.value, { render: false });
     }
-    
-    function closeSidebar() {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('visible');
-        menuToggle.setAttribute('aria-expanded', 'false');
-        menuToggle.setAttribute('aria-label', '메뉴 열기');
-    }
 
-    function openSidebar() {
-        sidebar.classList.add('open');
-        overlay.classList.add('visible');
-        menuToggle.setAttribute('aria-expanded', 'true');
-        menuToggle.setAttribute('aria-label', '메뉴 닫기');
-    }
-    
-    async function navigateChapter(direction: 'prev' | 'next') {
-        const currentChapter = parseInt(chapterSelect.value, 10);
-        const totalChapters = chapterSelect.options.length;
-        const isFirstChapter = currentChapter <= 1;
-        const isLastChapter = currentChapter >= totalChapters;
+    function updateChapterNavigation() {
+        // 이전장 버튼 활성화/비활성화
+        prevChapterBtn.disabled = currentChapter <= 1;
         
-        const visibleBookOptions = Array.from(bookSelect.options).filter(opt => opt.parentElement?.matches('optgroup[style*="display: none"]') === false && opt.value);
-        const currentVisibleBookIndex = visibleBookOptions.findIndex(opt => opt.value === bookSelect.value);
-
-
-        if (direction === 'next') {
-            if (!isLastChapter) {
-                chapterSelect.value = String(currentChapter + 1);
-                await renderChapter(currentChapter + 1);
-            } else if (currentVisibleBookIndex > -1 && currentVisibleBookIndex < visibleBookOptions.length - 1) {
-                const nextBook = visibleBookOptions[currentVisibleBookIndex + 1];
-                bookSelect.value = nextBook.value;
-                await loadBook(bookSelect.value, { targetChapter: 1, render: true });
-            }
-        } else if (direction === 'prev') {
-            if (!isFirstChapter) {
-                chapterSelect.value = String(currentChapter - 1);
-                await renderChapter(currentChapter - 1);
-            } else if (currentVisibleBookIndex > 0) {
-                const prevBook = visibleBookOptions[currentVisibleBookIndex - 1];
-                bookSelect.value = prevBook.value;
-                await loadBook(bookSelect.value, { targetChapter: 'last', render: true });
-            }
-        }
+        // 다음장 버튼 활성화/비활성화
+        nextChapterBtn.disabled = currentChapter >= maxChapters;
+        
+        // 제목 업데이트
+        currentBookTitle.textContent = `${currentBook} ${currentChapter}장`;
     }
 
     // --- Event Listeners Setup ---
@@ -376,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     startReadingBtn.addEventListener('click', () => {
-        navigateTo('/read?book=genesis&chapter=1');
+        navigateTo('/read?book=창세기&chapter=1');
     });
     continueReadingBtn.addEventListener('click', () => {
         const lastReadJSON = localStorage.getItem(LAST_READ_KEY);
@@ -386,19 +368,75 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Reader Screen & Sidebar
-    homeBtn.addEventListener('click', () => {
+    // Reader Screen
+    floatingHomeBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Floating home button clicked');
         navigateTo('/');
         closeSidebar();
     });
 
-    menuToggle.addEventListener('click', () => {
+    // 추가 이벤트 리스너로 확실하게 작동하도록
+    floatingHomeBtn.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        console.log('Floating home button mousedown');
+    });
+
+    floatingHomeBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        console.log('Floating home button touchstart');
+    });
+
+    floatingHomeBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        console.log('Floating home button touchend');
+        navigateTo('/');
+        closeSidebar();
+    });
+
+    // 햄버거 메뉴 클릭 이벤트 - 간단하고 확실한 방법
+    menuToggle.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Menu toggle clicked - onclick method');
+        console.log('Menu toggle element:', menuToggle);
+        console.log('Current aria-expanded:', menuToggle.getAttribute('aria-expanded'));
+        const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+        console.log('Is expanded:', isExpanded);
+        if (isExpanded) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    };
+
+    // 추가 이벤트 리스너로 확실하게 작동하도록
+    menuToggle.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        console.log('Menu toggle mousedown');
+    });
+
+    menuToggle.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        console.log('Menu toggle touchstart');
+    });
+
+    menuToggle.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        console.log('Menu toggle touchend');
         const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
         if (isExpanded) {
             closeSidebar();
         } else {
             openSidebar();
         }
+    });
+
+    // 더 강력한 이벤트 리스너
+    menuToggle.addEventListener('pointerdown', (e) => {
+        e.preventDefault();
+        console.log('Menu toggle pointerdown');
     });
 
     overlay.addEventListener('click', closeSidebar);
@@ -417,15 +455,48 @@ document.addEventListener('DOMContentLoaded', () => {
             closeSidebar();
         }
     });
-    
-    prevChapterBtn.addEventListener('click', () => navigateChapter('prev'));
-    nextChapterBtn.addEventListener('click', () => navigateChapter('next'));
+
+    // 이전장/다음장 버튼 이벤트 리스너
+    prevChapterBtn.addEventListener('click', async () => {
+        if (currentChapter > 1) {
+            currentChapter--;
+            await renderChapter(currentChapter);
+            updateChapterNavigation();
+        }
+    });
+
+    nextChapterBtn.addEventListener('click', async () => {
+        if (currentChapter < maxChapters) {
+            currentChapter++;
+            await renderChapter(currentChapter);
+            updateChapterNavigation();
+        }
+    });
     
     window.addEventListener('hashchange', route);
+
+    // --- Scroll Animation for Floating Home Button ---
+    let scrollTimeout: number;
+    window.addEventListener('scroll', () => {
+        // 스크롤 중일 때 애니메이션 일시 중지
+        floatingHomeBtn.style.animationPlayState = 'paused';
+        
+        // 스크롤이 멈춘 후 1초 뒤에 애니메이션 재개
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            floatingHomeBtn.style.animationPlayState = 'running';
+        }, 1000);
+    });
 
     // --- Initial Load ---
     if (localStorage.getItem(LAST_READ_KEY)) {
         continueReadingBtn.disabled = false;
     }
-    route(); // Determine which screen to show on initial load
+    
+    // 강제로 /read 페이지 표시 (테스트용)
+    if (window.location.hash.includes('/read')) {
+        displayReaderScreen({ book: '창세기', chapter: 1 });
+    } else {
+        route(); // Determine which screen to show on initial load
+    }
 });
