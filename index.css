@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: 'Gowun Batang', serif;
-    background-color: #fdf5e6; /* Parchment color for main content area */
+    background-color: #000; /* 검은 화면으로 시작 */
     color: #5a4a3a;
     line-height: 1.6;
     overflow-x: hidden;
@@ -73,6 +73,54 @@ body {
     }
 }
 
+/* --- Intro Screen Styles --- */
+#intro-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #000;
+    text-align: center;
+    padding: 2rem;
+    box-sizing: border-box;
+    animation: fadeIn 1s ease-out;
+}
+
+.intro-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+}
+
+.intro-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    animation: titleFadeIn 2s ease-out;
+    text-align: center;
+    letter-spacing: 0.05em;
+    line-height: 1.2;
+}
+
+@keyframes titleFadeIn {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    50% {
+        opacity: 0.5;
+        transform: translateY(15px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+
 /* --- Home Screen Styles --- */
 #home-screen {
     display: flex;
@@ -101,7 +149,7 @@ body {
 .home-title {
     font-size: 3rem;
     font-weight: 700;
-    color: #4a3f32;
+    color: #ffffff;
     margin-bottom: 0.25rem;
     animation: slideInFromTop 1s ease-out 0.2s both;
     opacity: 0;
@@ -110,7 +158,7 @@ body {
 .home-subtitle {
     font-size: 1.5rem;
     font-weight: 400;
-    color: #8c7853;
+    color: #ffffff;
     margin-top: 0;
     margin-bottom: 0;
     animation: slideInFromTop 1s ease-out 0.4s both;
@@ -466,7 +514,7 @@ body {
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
     pointer-events: auto;
-    border-right: 2px solid #8c7853;
+    border-right: 2px solid #ff0000;
 }
 
 #sidebar.open {
@@ -692,29 +740,18 @@ body {
     font-style: italic;
 }
 
-/* 십자가 SVG와 제목(h1) 사이의 간격을 조정하는 클래스입니다. margin-bottom을 늘리면 간격이 넓어집니다. */
-.cross-decoration {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 0.1rem;
-    margin-top: 0.2rem;
-    width: 100%;
-    animation: slideInFromTop 1s ease-out 0.2s both;
-    opacity: 0;
-}
 
-.cross-decoration svg {
-    width: 96px;
-    height: 144px;
-    display: block;
-}
 
 
 /* Responsive Design */
 @media (max-width: 800px) {
     #sidebar {
         width: 80vw;
+    }
+    
+    .intro-title {
+        font-size: 1.4rem;
+        letter-spacing: 0.03em;
     }
     
     .home-title {
@@ -767,5 +804,14 @@ body {
     .floating-home-button svg {
         width: 18px;
         height: 18px;
+    }
+}
+
+/* 작은 모바일 화면 (480px 이하) */
+@media (max-width: 480px) {
+    .intro-title {
+        font-size: 1.2rem;
+        letter-spacing: 0.02em;
+        padding: 0 1rem;
     }
 }
