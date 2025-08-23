@@ -1,7 +1,7 @@
 body {
     margin: 0;
     font-family: 'Gowun Batang', serif;
-    background-color: #000; /* 검은 화면으로 시작 */
+    background-color: #111111; /* 검은 화면으로 시작 */
     color: #5a4a3a;
     line-height: 1.6;
     overflow-x: hidden;
@@ -94,7 +94,7 @@ body {
 }
 
 .intro-title {
-    font-size: 1.8rem;
+    font-size: clamp(1.2rem, 2.5vw + 0.5rem, 1.8rem);
     font-weight: 700;
     color: #fff;
     margin: 0;
@@ -122,13 +122,15 @@ body {
 
 
 /* --- Home Screen Styles --- */
+/* --- Home Screen Styles --- */
+/* --- Home Screen Styles --- */
 #home-screen {
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    align-items: flex-start;
+    min-height: 90vh;
     text-align: center;
-    padding: 2rem;
+    padding: 5vh 2rem 2rem;
     box-sizing: border-box;
     animation: fadeIn 1.5s ease-out;
 }
@@ -147,7 +149,7 @@ body {
 }
 
 .home-title {
-    font-size: 3rem;
+    font-size: clamp(1.5rem, 2.5vw + 1rem, 3rem);
     font-weight: 700;
     color: #ffffff;
     margin-bottom: 0.25rem;
@@ -156,7 +158,7 @@ body {
 }
 
 .home-subtitle {
-    font-size: 1.5rem;
+    font-size: clamp(1rem, 2vw + 0.5rem, 1.5rem);
     font-weight: 400;
     color: #ffffff;
     margin-top: 0;
@@ -169,9 +171,8 @@ body {
     background: #fffaf0;
     border: 1px solid #dcd0b9;
     border-radius: 8px;
-    padding: 1.5rem 2rem;
+    padding: 1rem 1.5rem;
     margin-bottom: 0;
-    min-height: 150px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -179,7 +180,9 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.08);
     transition: all 0.3s ease;
     cursor: pointer;
-    width: 100%;
+    width: auto;
+    max-width: 90%;
+    min-width: 300px;
     box-sizing: border-box;
     animation: scaleIn 1s ease-out 0.6s both;
     opacity: 0;
@@ -199,17 +202,33 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-#verse-of-the-day-card p {
-    font-size: 1.2rem;
+.verse-card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    margin-bottom: 0.8rem;
+}
+
+.verse-card-title {
     margin: 0;
-    line-height: 1.8;
+    font-size: clamp(0.8rem, 1vw + 0.5rem, 0.9rem);
+    font-weight: 700;
+    color: #4a3f32;
+}
+
+#verse-of-the-day-card p {
+    font-size: clamp(1rem, 1.5vw + 0.5rem, 1.2rem);
+    margin: 0;
+    line-height: 1.5;
+    align-self: flex-start;
 }
 
 #verse-of-the-day-card footer {
-    margin-top: 1rem;
-    font-size: 1rem;
+    margin-top: 0.1rem;
+    font-size: clamp(0.7rem, 0.8vw + 0.5rem, 0.8rem);
     font-weight: 700;
-    color: #8c7853;
+    color: #000000;
 }
 
 .home-actions {
@@ -225,7 +244,7 @@ body {
 
 #start-reading-btn {
     font-family: 'Gowun Batang', serif;
-    font-size: 1.2rem;
+    font-size: clamp(1rem, 1.5vw + 0.5rem, 1.2rem);
     font-weight: 700;
     color: #fdf5e6;
     background-color: #4a3f32;
@@ -254,7 +273,7 @@ body {
 
 .secondary-action-btn {
     font-family: 'Gowun Batang', serif;
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 1.2vw + 0.5rem, 1rem);
     font-weight: 700;
     color: #4a3f32;
     background-color: transparent;
@@ -331,7 +350,7 @@ body {
     justify-content: center;
     box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     transition: all 0.2s ease;
-    font-size: 16px;
+    font-size: clamp(0.9rem, 1.2vw + 0.5rem, 1rem);
     user-select: none;
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -356,6 +375,10 @@ body {
     transform: scale(0.95);
 }
 
+#reader-screen.active #menu-toggle {
+    display: none;
+}
+
 /* Floating Home Button */
 .floating-home-button {
     position: fixed;
@@ -370,7 +393,7 @@ body {
     padding: 1rem 2rem;
     cursor: pointer;
     font-family: 'Gowun Batang', serif;
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 1.2vw + 0.5rem, 1rem);
     font-weight: 700;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     transition: all 0.3s ease;
@@ -416,16 +439,46 @@ body {
 .reader-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     margin-bottom: 2rem;
     padding-bottom: 1rem;
     border-bottom: 2px solid #dcd0b9;
+    width: 100%; /* Ensure it takes full width */
+    box-sizing: border-box; /* Include padding in width */
+}
+
+#bible-content {
+    max-width: 90%; /* Match verse-of-the-day-card */
+    min-width: 300px; /* Match verse-of-the-day-card */
+    margin: 0 auto; /* Center the block */
+    box-sizing: border-box; /* Ensure padding is included in width */
+    margin-top: 1rem; /* Add some top margin to separate from header */
+}
+
+#chapter-display {
+    font-size: clamp(0.9rem, 2vw + 0.5rem, 1.2rem);
+    font-weight: 700;
+    color: #FFFFFF;
+    padding: 0 0.8rem;
 }
 
 .chapter-navigation {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
     display: flex;
-    gap: 0.5rem;
+    justify-content: center;
+    gap: 1rem;
     align-items: center;
+    background-color: rgba(50, 50, 50, 0.75);
+    padding: 0.8rem 1.5rem;
+    width: 75vw;
+    border-radius: 30px;
+    z-index: 1000;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
 }
 
 .chapter-nav-btn {
@@ -433,8 +486,8 @@ body {
     color: #fdf5e6;
     border: none;
     border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    width: 2.5rem;
+    height: 2.5rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -469,7 +522,7 @@ body {
 
 .home-button {
     font-family: 'Gowun Batang', serif;
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 1.2vw + 0.5rem, 1rem);
     font-weight: 700;
     color: #fdf5e6;
     background-color: #5a4a3a;
@@ -490,10 +543,16 @@ body {
 }
 
 #current-book-title {
-    font-size: 2rem;
+    font-size: clamp(1rem, 2.5vw + 1rem, 3rem);
     font-weight: 700;
-    color: #4a3f32;
+    color: #FFFFFF;
     margin: 0;
+    display: flex; /* Make it a flex container */
+    justify-content: center; /* Center content horizontally */
+    align-items: center; /* Center content vertically */
+    text-align: center; /* Fallback for text alignment */
+    width: 100%; /* Ensure it takes full width */
+    box-sizing: border-box; /* Include padding in width */
 }
 
 /* Sidebar Styles */
@@ -514,7 +573,7 @@ body {
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
     pointer-events: auto;
-    border-right: 2px solid #ff0000;
+    border-right: 2px solid #8c7853;
 }
 
 #sidebar.open {
@@ -532,7 +591,7 @@ body {
 }
 
 #sidebar h1 {
-    font-size: 1.5rem;
+    font-size: clamp(1.2rem, 2vw + 0.5rem, 1.5rem);
     color: #fffaf0;
     margin: 0;
     font-weight: 700;
@@ -548,7 +607,7 @@ body {
 .nav-item label {
     display: block;
     margin-bottom: 0.5rem;
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 1vw + 0.5rem, 0.9rem);
     font-weight: 700;
     color: #c9b79c;
 }
@@ -556,7 +615,7 @@ body {
 #sidebar select {
     width: 100%;
     font-family: inherit;
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 1.2vw + 0.5rem, 1rem);
     padding: 0.8rem;
     border: 1px solid #8c7853;
     border-radius: 5px;
@@ -581,7 +640,7 @@ body {
 #confirm-selection-btn {
     width: 100%;
     font-family: inherit;
-    font-size: 1.1rem;
+    font-size: clamp(1rem, 1.3vw + 0.5rem, 1.1rem);
     font-weight: 700;
     padding: 0.9rem;
     background-color: #fdf5e6;
@@ -654,8 +713,6 @@ body {
     height: 40px;
     border-radius: 50%;
     cursor: pointer;
-    font-size: 1.2rem;
-    font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -677,9 +734,9 @@ body {
 
 
 .chapter-title {
-    font-size: 2.5rem;
+    font-size: clamp(1.8rem, 3vw + 0.5rem, 2.5rem);
     font-weight: 700;
-    color: #4a3f32;
+    color: #FFFFFF;
     text-align: center;
     margin-top: 2rem;
     margin-bottom: 2rem;
@@ -693,11 +750,13 @@ body {
     display: flex;
     align-items: flex-start;
     margin-bottom: 1rem;
+    max-width: 95%; /* 오늘의 성경 박스처럼 너비 늘림 */
+    margin: 0 auto; /* 중앙 정렬 */
 }
 
 .verse-number {
     font-weight: 700;
-    font-size: 0.8rem;
+    font-size: clamp(0.7rem, 0.8vw + 0.5rem, 0.8rem);
     color: #8c7853;
     padding-top: 0.25em; /* Align with text */
     min-width: 1.5em; /* Ensure alignment */
@@ -707,8 +766,9 @@ body {
 
 .verse p {
     margin: 0;
-    font-size: 1.15rem;
+    font-size: clamp(1rem, 1.4vw + 0.5rem, 1.15rem);
     line-height: 1.9;
+    color: #FFFFFF;
 }
 
 .summary-card {
@@ -734,7 +794,7 @@ body {
 
 .summary-card .notice {
     margin-top: 1.5rem;
-    font-size: 0.9rem;
+    font-size: clamp(0.8rem, 1vw + 0.5rem, 0.9rem);
     color: #8c7853;
     text-align: center;
     font-style: italic;
@@ -750,17 +810,14 @@ body {
     }
     
     .intro-title {
-        font-size: 1.4rem;
         letter-spacing: 0.03em;
     }
     
     .home-title {
-        font-size: 2.5rem;
         animation: slideInFromTop 0.8s ease-out 0.2s both;
     }
     
     .home-subtitle {
-        font-size: 1.2rem;
         animation: slideInFromTop 0.8s ease-out 0.4s both;
     }
 
@@ -788,15 +845,14 @@ body {
     }
 
     .chapter-title {
-        font-size: 2rem;
         padding-left: 0;
         padding-right: 0;
+        color: #FFFFFF;
     }
 
     .floating-home-button {
         bottom: 1.5rem;
         padding: 1rem 2rem;
-        font-size: 1rem;
         min-height: 44px;
         min-width: 120px;
     }
@@ -810,8 +866,79 @@ body {
 /* 작은 모바일 화면 (480px 이하) */
 @media (max-width: 480px) {
     .intro-title {
-        font-size: 1.2rem;
         letter-spacing: 0.02em;
         padding: 0 1rem;
     }
+
+    #verse-of-the-day-card {
+        padding: 0.8rem 1rem;
+    }
+
+    #verse-of-the-day-card p {
+        line-height: 1.4;
+    }
+
+    #verse-of-the-day-card footer {
+        margin-top: 0.1rem;
+    }
+}
+
+/* --- Bottom Navigation Bar --- */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background-color: #111111;
+  border-top: 1px solid #333;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
+.nav-button {
+  font-family: 'Gowun Batang', serif;
+  font-size: clamp(0.8rem, 1.5vw + 0.5rem, 1rem);
+  background-color: #444;
+  border: none;
+  color: #fdf5e6;
+  cursor: pointer;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s ease;
+}
+
+.nav-button:hover {
+  background-color: #555;
+}
+
+.chapter-navigation.hidden-nav {
+    transform: translateY(50%) translateX(-50%); /* Move it halfway down and keep it centered */
+    opacity: 0;
+}
+
+.chapter-navigation {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    align-items: center;
+    background-color: rgba(50, 50, 50, 0.75);
+    padding: 0.8rem 1.5rem;
+    width: 75vw;
+    border-radius: 30px;
+    z-index: 1000;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
 }

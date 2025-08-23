@@ -38,13 +38,15 @@ function toggleMenu() {
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM Element References ---
+    const introScreen = document.getElementById('intro-screen') as HTMLDivElement;
     const homeScreen = document.getElementById('home-screen') as HTMLDivElement;
     const readerScreen = document.getElementById('reader-screen') as HTMLDivElement;
     const verseOfTheDayCard = document.getElementById('verse-of-the-day-card') as HTMLDivElement;
-    const startReadingBtn = document.getElementById('start-reading-btn') as HTMLButtonElement;
-    const continueReadingBtn = document.getElementById('continue-reading-btn') as HTMLButtonElement;
-    const floatingHomeBtn = document.getElementById('floating-home-btn') as HTMLButtonElement;
     const currentBookTitle = document.getElementById('current-book-title') as HTMLHeadingElement;
+    const bottomNav = document.querySelector('.bottom-nav') as HTMLElement;
+    const navHomeBtn = document.getElementById('nav-home') as HTMLButtonElement;
+    const navReadBtn = document.getElementById('nav-read') as HTMLButtonElement;
+    const chapterDisplay = document.getElementById('chapter-display') as HTMLSpanElement;
     
     const contentEl = document.getElementById('bible-content') as HTMLDivElement;
     const menuToggle = document.getElementById('menu-toggle') as HTMLButtonElement;
@@ -58,22 +60,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextChapterBtn = document.getElementById('next-chapter-btn') as HTMLButtonElement;
 
     // --- Error Handling for Missing Elements ---
-    if (!homeScreen || !readerScreen || !verseOfTheDayCard || !startReadingBtn || !continueReadingBtn || !floatingHomeBtn || !contentEl || !currentBookTitle || !menuToggle || !sidebar || !overlay || !prevChapterBtn || !nextChapterBtn) {
+    if (!introScreen || !homeScreen || !readerScreen || !verseOfTheDayCard || !contentEl || !currentBookTitle || !menuToggle || !sidebar || !overlay || !prevChapterBtn || !nextChapterBtn || !bottomNav || !navHomeBtn || !navReadBtn || !chapterDisplay) {
         console.error("One or more required elements were not found in the DOM. App cannot start.");
         console.error("Missing elements:", {
+            introScreen: !!introScreen,
             homeScreen: !!homeScreen,
             readerScreen: !!readerScreen,
             verseOfTheDayCard: !!verseOfTheDayCard,
-            startReadingBtn: !!startReadingBtn,
-            continueReadingBtn: !!continueReadingBtn,
-            floatingHomeBtn: !!floatingHomeBtn,
             contentEl: !!contentEl,
             currentBookTitle: !!currentBookTitle,
             menuToggle: !!menuToggle,
             sidebar: !!sidebar,
             overlay: !!overlay,
             prevChapterBtn: !!prevChapterBtn,
-            nextChapterBtn: !!nextChapterBtn
+            nextChapterBtn: !!nextChapterBtn,
+            bottomNav: !!bottomNav,
+            navHomeBtn: !!navHomeBtn,
+            navReadBtn: !!navReadBtn,
+            chapterDisplay: !!chapterDisplay
         });
         if (document.body) {
             document.body.innerHTML = '<h1>Error: Application components failed to load. Please refresh the page.</h1>';
@@ -81,9 +85,23 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    // Scroll detection for chapter navigation bar
+    const chapterNav = document.querySelector('.chapter-navigation') as HTMLElement;
+    let lastScrollY = window.scrollY;
+
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > lastScrollY) {
+            // Scrolling down
+            chapterNav.classList.add('hidden-nav');
+        } else {
+            // Scrolling up
+            chapterNav.classList.remove('hidden-nav');
+        }
+        lastScrollY = window.scrollY;
+    });
+
     // --- Application State ---
-    const LAST_READ_KEY = 'digital_bible_last_read';
-    let verseOfTheDayLoaded = false;
+    const VERSE_OF_THE_DAY_KEY = 'verse_of_the_day';
     let currentBook = '창세기';
     let currentChapter = 1;
     let maxChapters = 1;
@@ -112,20 +130,38 @@ document.addEventListener('DOMContentLoaded', () => {
             const book = params.get('book') || 'genesis';
             const chapter = parseInt(params.get('chapter') || '1', 10);
             displayReaderScreen({ book, chapter });
+        } else if (path === '/intro') {
+            displayIntroScreen();
         } else {
             displayHomeScreen();
         }
     }
 
+    function displayIntroScreen() {
+        introScreen.style.display = 'flex';
+        homeScreen.style.display = 'none';
+        readerScreen.style.display = 'none';
+        bottomNav.style.display = 'none';
+        introScreen.classList.add('active');
+        homeScreen.classList.remove('active');
+        readerScreen.classList.remove('active');
+
+        setTimeout(() => {
+            if (window.location.hash === '#/intro') {
+                navigateTo('/');
+            }
+        }, 5000);
+    }
+
     function displayHomeScreen() {
-        // 화면 전환을 확실하게
+        introScreen.style.display = 'none';
         readerScreen.style.display = 'none';
         homeScreen.style.display = 'flex';
+        bottomNav.style.display = 'flex';
         homeScreen.classList.add('active');
         readerScreen.classList.remove('active');
-        if (!verseOfTheDayLoaded) {
-            loadVerseOfTheDay();
-        }
+        introScreen.classList.remove('active');
+        loadVerseOfTheDay();
     }
 
     function displayReaderScreen(options: { book: string, chapter: number }) {
@@ -136,10 +172,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const chapterNum = 1;
         
         // 화면 전환을 확실하게
+        introScreen.style.display = 'none';
         homeScreen.style.display = 'none';
         readerScreen.style.display = 'block';
+        bottomNav.style.display = 'flex';
         readerScreen.classList.add('active');
         homeScreen.classList.remove('active');
+        introScreen.classList.remove('active');
         
         currentBookTitle.textContent = `${bookName} ${chapterNum}장`;
         loadBook("창세기", { targetChapter: chapterNum, render: true });
@@ -148,13 +187,93 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Core Data Fetching and Rendering Functions ---
     
-    function loadVerseOfTheDay() {
-        if (verseOfTheDayLoaded) return;
-        verseOfTheDayLoaded = true;
+    async function loadVerseOfTheDay() {
+        const today = new Date().toISOString().split('T')[0]; // Get YYYY-MM-DD
+        const storedVerseData = localStorage.getItem(VERSE_OF_THE_DAY_KEY);
+
+        if (storedVerseData) {
+            try {
+                const { date, verse } = JSON.parse(storedVerseData);
+                if (date === today && verse) {
+                    verseOfTheDayCard.innerHTML = `
+                        <div class="verse-card-header">
+                            <h5 class="verse-card-title">오늘의 말씀</h5>
+                            <footer>${verse.source}</footer>
+                        </div>
+                        <p>"${verse.text}"</p>
+                    `;
+                    verseOfTheDayCard.style.cursor = 'default';
+                    return;
+                }
+            } catch (e) {
+                console.error("Failed to parse stored verse data", e);
+                localStorage.removeItem(VERSE_OF_THE_DAY_KEY); // Clear corrupted data
+            }
+        }
+
+        verseOfTheDayCard.innerHTML = `<div class="verse-placeholder"><div class="shine"></div></div>`;
+
+        const books = [
+            "old/나훔.json", "old/느헤미야.json", "old/다니엘.json", "old/레위기.json", "old/룻기.json", "old/말라기.json", "old/미가.json", "old/민수기.json", "old/사무엘상.json", "old/사무엘하.json", "old/사사기.json", "old/스가랴.json", "old/스바냐.json", "old/시편.json", "old/신명기.json", "old/아가.json", "old/아모스.json", "old/에스겔.json", "old/에스더.json", "old/에스라.json", "old/여호수아.json", "old/역대상.json", "old/역대하.json", "old/열왕기상.json", "old/열왕기하.json", "old/예레미야.json", "old/예레미야애가.json", "old/오바댜.json", "old/요나.json", "old/요엘.json", "old/욥기.json", "old/이사야.json", "old/잠언.json", "old/전도서.json", "old/창세기.json", "old/출애굽기.json", "old/하박국.json", "old/학개.json", "old/호세아.json",
+            "new/갈라디아서.json", "new/고린도전서.json", "new/고린도후서.json", "new/골로새서.json", "new/누가복음.json", "new/데살로니가전서.json", "new/데살로니가후서.json", "new/디도서.json", "new/디모데전서.json", "new/디모데후서.json", "new/로마서.json", "new/마가복음.json", "new/마태복음.json", "new/베드로전서.json", "new/베드로후서.json", "new/빌레몬서.json", "new/빌립보서.json", "new/사도행전.json", "new/야고보서.json", "new/에베소서.json", "new/요한1서.json", "new/요한2서.json", "new/요한3서.json", "new/요한계시록.json", "new/요한복음.json", "new/유다서.json", "new/히브리서.json"
+        ];
+
+        let attempts = 0;
+        const maxAttempts = 10;
+
+        while (attempts < maxAttempts) {
+            try {
+                const randomBookPath = books[Math.floor(Math.random() * books.length)];
+                const response = await fetch(randomBookPath);
+                if (!response.ok) {
+                    attempts++;
+                    continue;
+                }
+                const bookData = await response.json();
+                const chapters = Object.keys(bookData);
+                if (chapters.length === 0) {
+                    attempts++;
+                    continue;
+                }
+                const randomChapterNum = chapters[Math.floor(Math.random() * chapters.length)];
+                const verses = bookData[randomChapterNum];
+                if (!verses || verses.length === 0) {
+                    attempts++;
+                    continue;
+                }
+                const randomVerseNum = Math.floor(Math.random() * verses.length);
+                const verseText = verses[randomVerseNum];
+                const bookName = randomBookPath.split('/')[1].replace('.json', '');
+                const verseNumber = randomVerseNum + 1;
+                const verseSource = `${bookName} ${randomChapterNum}:${verseNumber}`;
+
+                const newVerse = {
+                    text: verseText,
+                    source: verseSource
+                };
+
+                localStorage.setItem(VERSE_OF_THE_DAY_KEY, JSON.stringify({ date: today, verse: newVerse }));
+
+                verseOfTheDayCard.innerHTML = `
+                    <div class="verse-card-header">
+                        <h5 class="verse-card-title">오늘의 말씀</h5>
+                        <footer>${newVerse.source}</footer>
+                    </div>
+                    <p>"${newVerse.text}"</p>
+                `;
+                verseOfTheDayCard.style.cursor = 'default';
+                return;
+
+            } catch (error) {
+                console.error(`Attempt ${attempts + 1} failed`, error);
+                attempts++;
+            }
+        }
+
         verseOfTheDayCard.innerHTML = `
-            <p>"하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 이는 그를 믿는 자마다 멸망하지 않고 영생을 얻게 하려 하심이라"</p>
-            <footer>요한복음 3:16</footer>
+            <p>오늘의 말씀을 불러오는 데 실패했습니다.</p>
         `;
+        verseOfTheDayCard.style.cursor = 'default';
     }
 
     async function renderChapter(chapter: number) {
@@ -193,13 +312,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             }).join('');
             contentEl.innerHTML = versesHtml;
-
-            const lastRead = { book: bookKey, chapter: chapter };
-            localStorage.setItem(LAST_READ_KEY, JSON.stringify(lastRead));
-            continueReadingBtn.disabled = false;
-            
-            // 네비게이션 업데이트
-            updateChapterNavigation();
             
             const newPath = `/read?book=${bookKey}&chapter=${chapter}`;
             navigateTo(newPath, true);
@@ -346,53 +458,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // 제목 업데이트
         currentBookTitle.textContent = `${currentBook} ${currentChapter}장`;
+        chapterDisplay.textContent = `${currentBook} ${currentChapter}장`;
     }
 
     // --- Event Listeners Setup ---
 
-    // Home Screen
-    verseOfTheDayCard.addEventListener('click', () => {
-        if (!verseOfTheDayLoaded) { // Only allow click-to-reload on failure
-            loadVerseOfTheDay();
-        }
+    navHomeBtn.addEventListener('click', () => {
+        navigateTo('/');
     });
 
-    startReadingBtn.addEventListener('click', () => {
+    navReadBtn.addEventListener('click', () => {
         navigateTo('/read?book=창세기&chapter=1');
-    });
-    continueReadingBtn.addEventListener('click', () => {
-        const lastReadJSON = localStorage.getItem(LAST_READ_KEY);
-        if (lastReadJSON) {
-            const lastRead = JSON.parse(lastReadJSON);
-            navigateTo(`/read?book=${lastRead.book}&chapter=${lastRead.chapter}`);
-        }
-    });
-
-    // Reader Screen
-    floatingHomeBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        console.log('Floating home button clicked');
-        navigateTo('/');
-        closeSidebar();
-    });
-
-    // 추가 이벤트 리스너로 확실하게 작동하도록
-    floatingHomeBtn.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        console.log('Floating home button mousedown');
-    });
-
-    floatingHomeBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        console.log('Floating home button touchstart');
-    });
-
-    floatingHomeBtn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        console.log('Floating home button touchend');
-        navigateTo('/');
-        closeSidebar();
     });
 
     // 햄버거 메뉴 클릭 이벤트 - 간단하고 확실한 방법
@@ -475,28 +551,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     window.addEventListener('hashchange', route);
 
-    // --- Scroll Animation for Floating Home Button ---
-    let scrollTimeout: number;
-    window.addEventListener('scroll', () => {
-        // 스크롤 중일 때 애니메이션 일시 중지
-        floatingHomeBtn.style.animationPlayState = 'paused';
-        
-        // 스크롤이 멈춘 후 1초 뒤에 애니메이션 재개
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-            floatingHomeBtn.style.animationPlayState = 'running';
-        }, 1000);
-    });
-
     // --- Initial Load ---
-    if (localStorage.getItem(LAST_READ_KEY)) {
-        continueReadingBtn.disabled = false;
+    if (!window.location.hash || window.location.hash === '#') {
+        navigateTo('/intro', true);
     }
-    
-    // 강제로 /read 페이지 표시 (테스트용)
-    if (window.location.hash.includes('/read')) {
-        displayReaderScreen({ book: '창세기', chapter: 1 });
-    } else {
-        route(); // Determine which screen to show on initial load
-    }
+
+    route(); // Determine which screen to show on initial load
 });
