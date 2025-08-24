@@ -37,6 +37,74 @@ function toggleMenu() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    const books: string[] = [
+        'old/창세기.json',
+        'old/출애굽기.json',
+        'old/레위기.json',
+        'old/민수기.json',
+        'old/신명기.json',
+        'old/여호수아.json',
+        'old/사사기.json',
+        'old/룻기.json',
+        'old/사무엘상.json',
+        'old/사무엘하.json',
+        'old/열왕기상.json',
+        'old/열왕기하.json',
+        'old/역대상.json',
+        'old/역대하.json',
+        'old/에스라.json',
+        'old/느헤미야.json',
+        'old/에스더.json',
+        'old/욥기.json',
+        'old/시편.json',
+        'old/잠언.json',
+        'old/전도서.json',
+        'old/아가.json',
+        'old/이사야.json',
+        'old/예레미야.json',
+        'old/예레미야애가.json',
+        'old/에스겔.json',
+        'old/다니엘.json',
+        'old/호세아.json',
+        'old/요엘.json',
+        'old/아모스.json',
+        'old/오바댜.json',
+        'old/요나.json',
+        'old/미가.json',
+        'old/나훔.json',
+        'old/하박국.json',
+        'old/스바냐.json',
+        'old/학개.json',
+        'old/스가랴.json',
+        'old/말라기.json',
+        'new/마태복음.json',
+        'new/마가복음.json',
+        'new/누가복음.json',
+        'new/요한복음.json',
+        'new/사도행전.json',
+        'new/로마서.json',
+        'new/고린도전서.json',
+        'new/고린도후서.json',
+        'new/갈라디아서.json',
+        'new/에베소서.json',
+        'new/빌립보서.json',
+        'new/골로새서.json',
+        'new/데살로니가전서.json',
+        'new/데살로니가후서.json',
+        'new/디모데전서.json',
+        'new/디모데후서.json',
+        'new/디도서.json',
+        'new/빌레몬서.json',
+        'new/히브리서.json',
+        'new/야고보서.json',
+        'new/베드로전서.json',
+        'new/베드로후서.json',
+        'new/요한1서.json',
+        'new/요한2서.json',
+        'new/요한3서.json',
+        'new/유다서.json',
+        'new/요한계시록.json'
+    ];
     // --- DOM Element References ---
     const introScreen = document.getElementById('intro-screen') as HTMLDivElement;
     const homeScreen = document.getElementById('home-screen') as HTMLDivElement;
@@ -58,6 +126,83 @@ document.addEventListener('DOMContentLoaded', () => {
     const confirmSelectionBtn = document.getElementById('confirm-selection-btn') as HTMLButtonElement;
     const prevChapterBtn = document.getElementById('prev-chapter-btn') as HTMLButtonElement;
     const nextChapterBtn = document.getElementById('next-chapter-btn') as HTMLButtonElement;
+
+    const HIGHLIGHT_KEY = 'bible-highlights';
+    const verseToolbar = document.createElement('div');
+    verseToolbar.id = 'verse-toolbar';
+    verseToolbar.className = 'verse-toolbar';
+    verseToolbar.innerHTML = `
+        <button class="toolbar-button" data-action="copy">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <span>복사</span>
+        </button>
+        <div class="toolbar-separator"></div>
+        <button class="toolbar-button" data-action="share">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
+            <span>공유</span>
+        </button>
+        <div class="toolbar-separator"></div>
+        <button class="toolbar-button" data-action="highlight">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            <span>하이라이트</span>
+        </button>
+    `;
+    document.body.appendChild(verseToolbar);
+
+    const colorPalette = document.createElement('div');
+    colorPalette.id = 'color-palette';
+    colorPalette.className = 'color-palette';
+    const colors = ['#fffb8f', '#a7ffeb', '#ffcdd2', '#c8e6c9', '#b3e5fc'];
+    colorPalette.innerHTML = colors.map(color => 
+        `<button class="color-swatch" data-color="${color}" style="background-color: ${color};"></button>`
+    ).join('');
+    document.body.appendChild(colorPalette);
+
+    const chapterSelectionModal = document.createElement('div');
+    chapterSelectionModal.id = 'chapter-selection-modal';
+    chapterSelectionModal.className = 'chapter-selection-modal';
+    chapterSelectionModal.innerHTML = `
+        <div class="chapter-selection-header">
+            <h3 id="chapter-selection-title">책 선택</h3>
+            <button id="close-chapter-selection-modal" class="close-modal-btn">&times;</button>
+        </div>
+        <div id="book-selection-view" class="selection-view active">
+            <!-- Book list will be populated here -->
+        </div>
+        <div id="chapter-selection-view" class="selection-view">
+            <div class="chapter-selection-subheader">
+                <button id="back-to-books-btn">&larr; 책 목록으로</button>
+            </div>
+            <div id="chapter-selection-grid" class="chapter-selection-grid">
+                <!-- Chapter numbers will be populated here -->
+            </div>
+        </div>
+    `;
+    document.body.appendChild(chapterSelectionModal);
+
+    const closeChapterSelectionModalBtn = document.getElementById('close-chapter-selection-modal');
+    if(closeChapterSelectionModalBtn) {
+        closeChapterSelectionModalBtn.addEventListener('click', closeChapterSelectionModal);
+    }
+
+    const backToBooksBtn = document.getElementById('back-to-books-btn');
+    if (backToBooksBtn) {
+        backToBooksBtn.addEventListener('click', () => {
+            const bookView = document.getElementById('book-selection-view');
+            const chapterView = document.getElementById('chapter-selection-view');
+            const modalTitle = document.getElementById('chapter-selection-title');
+
+            if (!bookView || !chapterView || !modalTitle) {
+                return;
+            }
+
+            modalTitle.textContent = '책 선택';
+            chapterView.classList.remove('active');
+            bookView.classList.add('active');
+        });
+    }
+
+    let activeVerse: HTMLElement | null = null;
 
     // --- Error Handling for Missing Elements ---
     if (!introScreen || !homeScreen || !readerScreen || !verseOfTheDayCard || !contentEl || !currentBookTitle || !menuToggle || !sidebar || !overlay || !prevChapterBtn || !nextChapterBtn || !bottomNav || !navHomeBtn || !navReadBtn || !chapterDisplay) {
@@ -93,9 +238,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.scrollY > lastScrollY) {
             // Scrolling down
             chapterNav.classList.add('hidden-nav');
+            bottomNav.classList.add('hidden-nav');
         } else {
             // Scrolling up
             chapterNav.classList.remove('hidden-nav');
+            bottomNav.classList.remove('hidden-nav');
         }
         lastScrollY = window.scrollY;
     });
@@ -127,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const params = new URLSearchParams(queryString || '');
 
         if (path === '/read') {
-            const book = params.get('book') || 'genesis';
+            const book = params.get('book') || '창세기';
             const chapter = parseInt(params.get('chapter') || '1', 10);
             displayReaderScreen({ book, chapter });
         } else if (path === '/intro') {
@@ -164,13 +311,9 @@ document.addEventListener('DOMContentLoaded', () => {
         loadVerseOfTheDay();
     }
 
-    function displayReaderScreen(options: { book: string, chapter: number }) {
+    async function displayReaderScreen(options: { book: string, chapter: number }) {
         const { book, chapter } = options;
 
-        // 기본적으로 창세기 1장을 보여줍니다
-        const bookName = "창세기";
-        const chapterNum = 1;
-        
         // 화면 전환을 확실하게
         introScreen.style.display = 'none';
         homeScreen.style.display = 'none';
@@ -180,8 +323,8 @@ document.addEventListener('DOMContentLoaded', () => {
         homeScreen.classList.remove('active');
         introScreen.classList.remove('active');
         
-        currentBookTitle.textContent = `${bookName} ${chapterNum}장`;
-        loadBook("창세기", { targetChapter: chapterNum, render: true });
+        currentBookTitle.textContent = `${book} ${chapter}장`;
+        await loadBook(book, { targetChapter: chapter, render: true });
         updateChapterNavigation();
     }
 
@@ -212,11 +355,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         verseOfTheDayCard.innerHTML = `<div class="verse-placeholder"><div class="shine"></div></div>`;
-
-        const books = [
-            "old/나훔.json", "old/느헤미야.json", "old/다니엘.json", "old/레위기.json", "old/룻기.json", "old/말라기.json", "old/미가.json", "old/민수기.json", "old/사무엘상.json", "old/사무엘하.json", "old/사사기.json", "old/스가랴.json", "old/스바냐.json", "old/시편.json", "old/신명기.json", "old/아가.json", "old/아모스.json", "old/에스겔.json", "old/에스더.json", "old/에스라.json", "old/여호수아.json", "old/역대상.json", "old/역대하.json", "old/열왕기상.json", "old/열왕기하.json", "old/예레미야.json", "old/예레미야애가.json", "old/오바댜.json", "old/요나.json", "old/요엘.json", "old/욥기.json", "old/이사야.json", "old/잠언.json", "old/전도서.json", "old/창세기.json", "old/출애굽기.json", "old/하박국.json", "old/학개.json", "old/호세아.json",
-            "new/갈라디아서.json", "new/고린도전서.json", "new/고린도후서.json", "new/골로새서.json", "new/누가복음.json", "new/데살로니가전서.json", "new/데살로니가후서.json", "new/디도서.json", "new/디모데전서.json", "new/디모데후서.json", "new/로마서.json", "new/마가복음.json", "new/마태복음.json", "new/베드로전서.json", "new/베드로후서.json", "new/빌레몬서.json", "new/빌립보서.json", "new/사도행전.json", "new/야고보서.json", "new/에베소서.json", "new/요한1서.json", "new/요한2서.json", "new/요한3서.json", "new/요한계시록.json", "new/요한복음.json", "new/유다서.json", "new/히브리서.json"
-        ];
 
         let attempts = 0;
         const maxAttempts = 10;
@@ -276,9 +414,8 @@ document.addEventListener('DOMContentLoaded', () => {
         verseOfTheDayCard.style.cursor = 'default';
     }
 
-    async function renderChapter(chapter: number) {
+    async function renderChapter(bookKey: string, chapter: number) {
         const bookName = bookSelect.options[bookSelect.selectedIndex]?.text || bookSelect.value;
-        const bookKey = bookSelect.value;
         
         if (!chapter) {
             contentEl.innerHTML = '<p>장을 선택해주세요.</p>';
@@ -291,12 +428,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         contentEl.innerHTML = '<p>본문 로딩 중...</p>';
         try {
-            const bookDataResponse = await fetch(`old/${bookKey}.json`);
-            if (!bookDataResponse.ok) {
-                throw new Error(`Bible data file not found for: old/${bookKey}.json`);
+            const bookData = await getBookData(bookKey);
+            if (!bookData) {
+                throw new Error(`Bible data file not found for: ${bookKey}`);
             }
-            const text = await bookDataResponse.text();
-            const bookData = text ? JSON.parse(text) : {};
             const verses = bookData[String(chapter)];
 
             if (!verses || !Array.isArray(verses) || verses.length === 0) {
@@ -312,6 +447,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             }).join('');
             contentEl.innerHTML = versesHtml;
+
+            const highlights = JSON.parse(localStorage.getItem(HIGHLIGHT_KEY) || '{}');
+            const verseElements = contentEl.querySelectorAll('.verse');
+            verseElements.forEach((verseEl) => {
+                const verseNumEl = verseEl.querySelector('.verse-number');
+                if (!verseNumEl) return;
+                const index = parseInt(verseNumEl.textContent || '0', 10) - 1;
+                const key = `${bookKey}-${chapter}-${index}`;
+                if (highlights[key]) {
+                    (verseEl as HTMLElement).style.backgroundColor = highlights[key];
+                }
+            });
             
             const newPath = `/read?book=${bookKey}&chapter=${chapter}`;
             navigateTo(newPath, true);
@@ -339,13 +486,11 @@ document.addEventListener('DOMContentLoaded', () => {
         chapterSelect.disabled = true;
         
         try {
-            const bookDataResponse = await fetch(`old/${bookKey}.json`);
-            if (!bookDataResponse.ok) {
-                throw new Error(`Bible data file not found for: old/${bookKey}.json`);
+            const bookData = await getBookData(bookKey);
+            if (!bookData) {
+                throw new Error(`Bible data file not found for: ${bookKey}`);
             }
 
-            const text = await bookDataResponse.text();
-            const bookData = text ? JSON.parse(text) : {};
             const chapterCount = Object.keys(bookData).length;
             const bookName = bookKey;
             
@@ -384,7 +529,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     chapterToRender = targetChapter as number;
                 }
                 chapterSelect.value = String(chapterToRender);
-                await renderChapter(chapterToRender);
+                await renderChapter(bookKey, chapterToRender);
             } else {
                 chapterSelect.value = ""; 
                 confirmSelectionBtn.disabled = true;
@@ -428,6 +573,96 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Overlay classes after open:', overlay.className);
     }
 
+    function openChapterSelectionModal() {
+        const modal = document.getElementById('chapter-selection-modal');
+        const bookView = document.getElementById('book-selection-view');
+        const chapterView = document.getElementById('chapter-selection-view');
+        const modalTitle = document.getElementById('chapter-selection-title');
+
+        if (!modal || !bookView || !chapterView || !modalTitle) {
+            return;
+        }
+
+        modalTitle.textContent = '책 선택';
+        bookView.innerHTML = ''; // Clear previous books
+        bookView.classList.add('active');
+        chapterView.classList.remove('active');
+
+        books.forEach((bookPath: string) => {
+            const bookName = bookPath.split('/')[1].replace('.json', '');
+            const bookButton = document.createElement('button');
+            bookButton.className = 'book-selection-button';
+            bookButton.textContent = bookName;
+            bookButton.dataset.book = bookName;
+            bookButton.addEventListener('click', () => {
+                showChaptersForBook(bookName);
+            });
+            bookView.appendChild(bookButton);
+        });
+
+        modal.classList.add('visible');
+    }
+
+    function closeChapterSelectionModal() {
+        const modal = document.getElementById('chapter-selection-modal');
+        if (modal) {
+            modal.classList.remove('visible');
+        }
+    }
+
+    async function showChaptersForBook(bookName: string) {
+        const bookView = document.getElementById('book-selection-view');
+        const chapterView = document.getElementById('chapter-selection-view');
+        const modalTitle = document.getElementById('chapter-selection-title');
+        const grid = document.getElementById('chapter-selection-grid');
+
+        if (!bookView || !chapterView || !modalTitle || !grid) {
+            return;
+        }
+
+        modalTitle.textContent = `${bookName} 장 선택`;
+        bookView.classList.remove('active');
+        chapterView.classList.add('active');
+
+        const bookData = await getBookData(bookName);
+        if (!bookData) return;
+
+        const chapterCount = Object.keys(bookData).length;
+        grid.innerHTML = '';
+
+        for (let i = 1; i <= chapterCount; i++) {
+            const chapterButton = document.createElement('button');
+            chapterButton.className = 'chapter-selection-button';
+            chapterButton.textContent = String(i);
+            chapterButton.dataset.chapter = String(i);
+            chapterButton.addEventListener('click', () => {
+                const chapter = parseInt(chapterButton.dataset.chapter || '0');
+                if (chapter) {
+                    bookSelect.value = bookName;
+                    renderChapter(bookName, chapter);
+                    closeChapterSelectionModal();
+                }
+            });
+            grid.appendChild(chapterButton);
+        }
+    }
+
+    async function getBookData(bookKey: string) {
+        const bookPath = books.find((path: string) => path.includes(bookKey));
+        if (!bookPath) return null;
+
+        try {
+            const response = await fetch(bookPath);
+            if (!response.ok) {
+                return null;
+            }
+            return await response.json();
+        } catch (error) {
+            console.error("Error fetching book data:", error);
+            return null;
+        }
+    }
+
     function filterBookList() {
         const filter = testamentSelect.value;
         const allOptgroups = bookSelect.querySelectorAll<HTMLElement>('optgroup');
@@ -462,6 +697,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Event Listeners Setup ---
+
+    chapterDisplay.addEventListener('click', openChapterSelectionModal);
 
     navHomeBtn.addEventListener('click', () => {
         navigateTo('/');
@@ -527,7 +764,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedChapter = parseInt(chapterSelect.value, 10);
         if (!isNaN(selectedChapter)) {
             confirmSelectionBtn.disabled = true; // Prevent double clicks
-            await renderChapter(selectedChapter);
+            await renderChapter(bookSelect.value, selectedChapter);
             closeSidebar();
         }
     });
@@ -536,7 +773,7 @@ document.addEventListener('DOMContentLoaded', () => {
     prevChapterBtn.addEventListener('click', async () => {
         if (currentChapter > 1) {
             currentChapter--;
-            await renderChapter(currentChapter);
+            await renderChapter(currentBook, currentChapter);
             updateChapterNavigation();
         }
     });
@@ -544,7 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
     nextChapterBtn.addEventListener('click', async () => {
         if (currentChapter < maxChapters) {
             currentChapter++;
-            await renderChapter(currentChapter);
+            await renderChapter(currentBook, currentChapter);
             updateChapterNavigation();
         }
     });
@@ -557,4 +794,72 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     route(); // Determine which screen to show on initial load
+
+    contentEl.addEventListener('click', (event) => {
+        const verseElement = (event.target as HTMLElement).closest('.verse');
+
+        if (verseElement) {
+            // If clicking the same verse, hide the toolbar
+            if (activeVerse === verseElement) {
+                verseToolbar.classList.remove('visible');
+                if (activeVerse) {
+                    activeVerse.classList.remove('active-verse');
+                }
+                activeVerse = null;
+                return;
+            }
+
+            // Remove active state from previous verse
+            if (activeVerse) {
+                activeVerse.classList.remove('active-verse');
+            }
+            
+            // Show toolbar and set new active verse
+            verseElement.classList.add('active-verse');
+            activeVerse = verseElement as HTMLElement;
+            
+            const verseRect = verseElement.getBoundingClientRect();
+            const toolbarHeight = verseToolbar.offsetHeight;
+            const toolbarWidth = verseToolbar.offsetWidth;
+            const caretHeight = 8;
+
+            // Default position: above the verse
+            let top = verseRect.top + window.scrollY - toolbarHeight - caretHeight;
+            verseToolbar.classList.remove('caret-top');
+            verseToolbar.classList.add('caret-bottom');
+
+            // If it goes off-screen at the top, position it below
+            if (top < window.scrollY + 10) {
+                top = verseRect.bottom + window.scrollY + caretHeight;
+                verseToolbar.classList.remove('caret-bottom');
+                verseToolbar.classList.add('caret-top');
+            }
+
+            let left = verseRect.left + (verseRect.width / 2) - (toolbarWidth / 2);
+
+            // Ensure it doesn't go off-screen horizontally
+            if (left < 10) left = 10;
+            if (left + toolbarWidth > document.documentElement.clientWidth - 10) {
+                left = document.documentElement.clientWidth - toolbarWidth - 10;
+            }
+
+            verseToolbar.style.top = `${top}px`;
+            verseToolbar.style.left = `${left}px`;
+            verseToolbar.classList.add('visible');
+        }
+    });
+
+    // Hide toolbar when clicking outside
+    document.addEventListener('click', (event) => {
+        const target = event.target as Node;
+        if (!contentEl.contains(target) && !verseToolbar.contains(target)) {
+            if (verseToolbar.classList.contains('visible')) {
+                verseToolbar.classList.remove('visible');
+                if (activeVerse) {
+                    activeVerse.classList.remove('active-verse');
+                    activeVerse = null;
+                }
+            }
+        }
+    });
 });

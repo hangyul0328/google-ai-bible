@@ -844,6 +844,10 @@ body {
         padding-left: 60px;
     }
 
+    #current-book-title {
+        margin-left: -60px;
+    }
+
     .chapter-title {
         padding-left: 0;
         padding-right: 0;
@@ -897,6 +901,7 @@ body {
   align-items: center;
   z-index: 1000;
   box-sizing: border-box;
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
 }
 
 .nav-button {
@@ -924,6 +929,11 @@ body {
     opacity: 0;
 }
 
+.bottom-nav.hidden-nav {
+    transform: translateY(100%);
+    opacity: 0;
+}
+
 .chapter-navigation {
     position: fixed;
     bottom: 80px;
@@ -941,4 +951,238 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+
+/* Verse Toolbar Styles */
+.verse-toolbar {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    padding: 0 0.5rem;
+    border-radius: 12px;
+    z-index: 1001;
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+    pointer-events: none;
+    background-color: rgba(40, 40, 40, 0.75);
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.verse-toolbar.visible {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+}
+
+.toolbar-button {
+    font-family: 'Gowun Batang', serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: none;
+    border: none;
+    color: #f0f0f0;
+    cursor: pointer;
+    padding: 0.75rem;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.toolbar-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.toolbar-button svg {
+    width: 18px;
+    height: 18px;
+    stroke: #f0f0f0;
+}
+
+.toolbar-separator {
+    width: 1px;
+    height: 20px;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.verse-toolbar::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.verse-toolbar.caret-bottom::after {
+    bottom: -8px;
+    border-top: 8px solid rgba(40, 40, 40, 0.75);
+}
+
+.verse-toolbar.caret-top::after {
+    top: -8px;
+    border-top: none;
+    border-bottom: 8px solid rgba(40, 40, 40, 0.75);
+}
+
+.verse.active-verse {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+}
+
+.color-palette {
+    position: absolute;
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background-color: rgba(40, 40, 40, 0.75);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    z-index: 1002; /* Above toolbar */
+    opacity: 0;
+    transform: scale(0.95);
+    transition: all 0.15s ease-out;
+    pointer-events: none;
+}
+.color-palette.visible {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+.color-swatch {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    cursor: pointer;
+}
+
+/* --- Chapter Selection Modal --- */
+.chapter-selection-modal {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    max-height: 50vh;
+    background-color: #2a2a2a;
+    color: #fdf5e6;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    z-index: 1005;
+    transform: translateY(100%);
+    transition: transform 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+}
+
+.chapter-selection-modal.visible {
+    transform: translateY(0);
+}
+
+.chapter-selection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #444;
+}
+
+.chapter-selection-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.close-modal-btn {
+    background: none;
+    border: none;
+    color: #fdf5e6;
+    font-size: 1.8rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.chapter-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 1rem;
+    padding: 1.5rem;
+    overflow-y: auto;
+}
+
+.chapter-selection-button {
+    font-family: 'Gowun Batang', serif;
+    font-size: 1rem;
+    background-color: #444;
+    color: #fdf5e6;
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 0.8rem 0;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.chapter-selection-button:hover {
+    background-color: #5a4a3a;
+}
+
+.chapter-selection-button.active {
+    background-color: #fdf5e6;
+    color: #4a3f32;
+    font-weight: bold;
+    border-color: #fdf5e6;
+}
+
+.chapter-selection-button:active {
+    transform: scale(0.95);
+}
+
+.selection-view {
+    display: none;
+}
+
+.selection-view.active {
+    display: block;
+}
+
+.chapter-selection-subheader {
+    padding: 0.5rem 1.5rem;
+    border-bottom: 1px solid #444;
+}
+
+#back-to-books-btn {
+    background: none;
+    border: none;
+    color: #fdf5e6;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 0.5rem 0;
+}
+
+.book-selection-button {
+    display: block;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: none;
+    border: none;
+    border-bottom: 1px solid #444;
+    color: #fdf5e6;
+    text-align: left;
+    font-size: 1rem;
+    cursor: pointer;
+    font-family: 'Gowun Batang', serif;
+}
+
+.book-selection-button:hover {
+    background-color: #3a3a3a;
 }
