@@ -141,7 +141,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2rem;
+    gap: 1rem;
 }
 
 .home-header {
@@ -158,9 +158,6 @@ body {
 }
 
 .home-subtitle {
-    font-size: clamp(1rem, 2vw + 0.5rem, 1.5rem);
-    font-weight: 400;
-    color: #ffffff;
     margin-top: 0;
     margin-bottom: 0;
     animation: slideInFromTop 1s ease-out 0.4s both;
@@ -198,7 +195,7 @@ body {
 }
 
 #verse-of-the-day-card:active {
-    transform: translateY(-1px) scale(0.99);
+    transform: translateY(-1px) scale(0.98);
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
@@ -268,7 +265,7 @@ body {
 
 #start-reading-btn:active {
     transform: translateY(0) scale(0.98);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
 .secondary-action-btn {
@@ -543,7 +540,7 @@ body {
 }
 
 #current-book-title {
-    font-size: clamp(1rem, 2.5vw + 1rem, 3rem);
+    font-size: clamp(1.8rem, 3vw + 0.5rem, 2.5rem);
     font-weight: 700;
     color: #FFFFFF;
     margin: 0;
@@ -1185,4 +1182,76 @@ body {
 
 .book-selection-button:hover {
     background-color: #3a3a3a;
+}
+
+/* Highlight Style */
+.verse.highlighted-verse {
+    background-color: transparent; /* Remove background from the parent */
+}
+
+.verse.highlighted-verse p {
+    background-color: #fffb8f;
+    color: #000000 !important;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+.chapter-selection-modal .selection-view {
+    overflow-y: auto;
+    max-height: 70vh;
+    padding: 10px;
+}
+.book-selection-grid, .chapter-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+.book-selection-button, .chapter-selection-button {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: center;
+    cursor: pointer;
+    background-color: transparent;
+    color: inherit;
+}
+
+/* Progress Bar Styles */
+.progress-container {
+    width: auto;
+    max-width: 90%;
+    min-width: 300px;
+    background-color: #333;
+    border-radius: 5px;
+    height: 20px;
+    margin-top: 0rem;
+    overflow: hidden;
+    position: relative;
+    animation: scaleIn 1s ease-out 0.8s both;
+    opacity: 0;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background-color: #4CAF50; /* Green color */
+    border-radius: 5px;
+    text-align: center;
+    line-height: 20px;
+    color: white;
+    transition: width 0.5s ease-in-out;
+}
+
+.progress-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    color: white;
+    font-size: 1rem;
+    line-height: 20px;
+    top: 0;
+    left: 0;
+    font-weight: 700;
 }

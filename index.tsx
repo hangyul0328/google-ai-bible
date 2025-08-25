@@ -1,3 +1,5 @@
+import './index.css';
+
 // 전역 함수로 햄버거 메뉴 토글 함수 추가
 function toggleMenu() {
     console.log('Global toggleMenu function called');
@@ -38,72 +40,72 @@ function toggleMenu() {
 
 document.addEventListener('DOMContentLoaded', () => {
     const books: string[] = [
-        'old/창세기.json',
-        'old/출애굽기.json',
-        'old/레위기.json',
-        'old/민수기.json',
-        'old/신명기.json',
-        'old/여호수아.json',
-        'old/사사기.json',
-        'old/룻기.json',
-        'old/사무엘상.json',
-        'old/사무엘하.json',
-        'old/열왕기상.json',
-        'old/열왕기하.json',
-        'old/역대상.json',
-        'old/역대하.json',
-        'old/에스라.json',
-        'old/느헤미야.json',
-        'old/에스더.json',
-        'old/욥기.json',
-        'old/시편.json',
-        'old/잠언.json',
-        'old/전도서.json',
-        'old/아가.json',
-        'old/이사야.json',
-        'old/예레미야.json',
-        'old/예레미야애가.json',
-        'old/에스겔.json',
-        'old/다니엘.json',
-        'old/호세아.json',
-        'old/요엘.json',
-        'old/아모스.json',
-        'old/오바댜.json',
-        'old/요나.json',
-        'old/미가.json',
-        'old/나훔.json',
-        'old/하박국.json',
-        'old/스바냐.json',
-        'old/학개.json',
-        'old/스가랴.json',
-        'old/말라기.json',
-        'new/마태복음.json',
-        'new/마가복음.json',
-        'new/누가복음.json',
-        'new/요한복음.json',
-        'new/사도행전.json',
-        'new/로마서.json',
-        'new/고린도전서.json',
-        'new/고린도후서.json',
-        'new/갈라디아서.json',
-        'new/에베소서.json',
-        'new/빌립보서.json',
-        'new/골로새서.json',
-        'new/데살로니가전서.json',
-        'new/데살로니가후서.json',
-        'new/디모데전서.json',
-        'new/디모데후서.json',
-        'new/디도서.json',
-        'new/빌레몬서.json',
-        'new/히브리서.json',
-        'new/야고보서.json',
-        'new/베드로전서.json',
-        'new/베드로후서.json',
-        'new/요한1서.json',
-        'new/요한2서.json',
-        'new/요한3서.json',
-        'new/유다서.json',
-        'new/요한계시록.json'
+        '/old/창세기.json',
+        '/old/출애굽기.json',
+        '/old/레위기.json',
+        '/old/민수기.json',
+        '/old/신명기.json',
+        '/old/여호수아.json',
+        '/old/사사기.json',
+        '/old/룻기.json',
+        '/old/사무엘상.json',
+        '/old/사무엘하.json',
+        '/old/열왕기상.json',
+        '/old/열왕기하.json',
+        '/old/역대상.json',
+        '/old/역대하.json',
+        '/old/에스라.json',
+        '/old/느헤미야.json',
+        '/old/에스더.json',
+        '/old/욥기.json',
+        '/old/시편.json',
+        '/old/잠언.json',
+        '/old/전도서.json',
+        '/old/아가.json',
+        '/old/이사야.json',
+        '/old/예레미야.json',
+        '/old/예레미야애가.json',
+        '/old/에스겔.json',
+        '/old/다니엘.json',
+        '/old/호세아.json',
+        '/old/요엘.json',
+        '/old/아모스.json',
+        '/old/오바댜.json',
+        '/old/요나.json',
+        '/old/미가.json',
+        '/old/나훔.json',
+        '/old/하박국.json',
+        '/old/스바냐.json',
+        '/old/학개.json',
+        '/old/스가랴.json',
+        '/old/말라기.json',
+        '/new/마태복음.json',
+        '/new/마가복음.json',
+        '/new/누가복음.json',
+        '/new/요한복음.json',
+        '/new/사도행전.json',
+        '/new/로마서.json',
+        '/new/고린도전서.json',
+        '/new/고린도후서.json',
+        '/new/갈라디아서.json',
+        '/new/에베소서.json',
+        '/new/빌립보서.json',
+        '/new/골로새서.json',
+        '/new/데살로니가전서.json',
+        '/new/데살로니가후서.json',
+        '/new/디모데전서.json',
+        '/new/디모데후서.json',
+        '/new/디도서.json',
+        '/new/빌레몬서.json',
+        '/new/히브리서.json',
+        '/new/야고보서.json',
+        '/new/베드로전서.json',
+        '/new/베드로후서.json',
+        '/new/요한1서.json',
+        '/new/요한2서.json',
+        '/new/요한3서.json',
+        '/new/유다서.json',
+        '/new/요한계시록.json'
     ];
     // --- DOM Element References ---
     const introScreen = document.getElementById('intro-screen') as HTMLDivElement;
@@ -115,6 +117,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const navHomeBtn = document.getElementById('nav-home') as HTMLButtonElement;
     const navReadBtn = document.getElementById('nav-read') as HTMLButtonElement;
     const chapterDisplay = document.getElementById('chapter-display') as HTMLSpanElement;
+    const verseToolbar = document.getElementById('verse-toolbar') as HTMLDivElement;
+    const readingProgressBar = document.getElementById('reading-progress-bar') as HTMLDivElement;
+    const readingProgressText = document.getElementById('reading-progress-text') as HTMLDivElement;
+
+    const TOTAL_VERSES = 31102; // Total number of verses in the Bible (calculated manually)
+
+    function updateReadingProgress() {
+        const highlights = JSON.parse(localStorage.getItem(HIGHLIGHT_KEY) || '{}');
+        const highlightedVersesCount = Object.keys(highlights).length;
+        const percentage = (highlightedVersesCount / TOTAL_VERSES) * 100;
+        readingProgressBar.style.width = `${percentage.toFixed(2)}%`;
+        readingProgressText.textContent = `${percentage.toFixed(2)}%`;
+    }
     
     const contentEl = document.getElementById('bible-content') as HTMLDivElement;
     const menuToggle = document.getElementById('menu-toggle') as HTMLButtonElement;
@@ -128,26 +143,51 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextChapterBtn = document.getElementById('next-chapter-btn') as HTMLButtonElement;
 
     const HIGHLIGHT_KEY = 'bible-highlights';
-    const verseToolbar = document.createElement('div');
-    verseToolbar.id = 'verse-toolbar';
-    verseToolbar.className = 'verse-toolbar';
     verseToolbar.innerHTML = `
-        <button class="toolbar-button" data-action="copy">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            <span>복사</span>
+        <button class="toolbar-button" data-action="highlight">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+            <span>형광펜</span>
         </button>
         <div class="toolbar-separator"></div>
         <button class="toolbar-button" data-action="share">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg>
             <span>공유</span>
         </button>
-        <div class="toolbar-separator"></div>
-        <button class="toolbar-button" data-action="highlight">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
-            <span>하이라이트</span>
-        </button>
     `;
-    document.body.appendChild(verseToolbar);
+
+    verseToolbar.addEventListener('click', (event: MouseEvent) => {
+        const button = (event.target as HTMLElement).closest('.toolbar-button');
+        if (!button || !activeVerse) return;
+
+        const action = button.getAttribute('data-action');
+        const verseNumEl = activeVerse.querySelector('.verse-number');
+        if (!verseNumEl) return;
+
+        const verseIndex = parseInt(verseNumEl.textContent || '0', 10) - 1;
+        const highlightKey = `${currentBook}-${currentChapter}-${verseIndex}`;
+        const highlights = JSON.parse(localStorage.getItem(HIGHLIGHT_KEY) || '{}');
+
+        if (action === 'highlight') {
+            if (activeVerse.classList.contains('highlighted-verse')) {
+                // Already highlighted, so remove highlight
+                activeVerse.classList.remove('highlighted-verse');
+                delete highlights[highlightKey];
+            } else {
+                // Highlight
+                activeVerse.classList.add('highlighted-verse');
+                highlights[highlightKey] = true; // Store a simple boolean
+            }
+            localStorage.setItem(HIGHLIGHT_KEY, JSON.stringify(highlights));
+            updateReadingProgress(); // Update progress after highlighting
+        }
+
+        // Hide toolbar after action
+        verseToolbar.classList.remove('visible');
+        if (activeVerse) {
+            activeVerse.classList.remove('active-verse');
+        }
+        activeVerse = null;
+    });
 
     const colorPalette = document.createElement('div');
     colorPalette.id = 'color-palette';
@@ -337,7 +377,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (storedVerseData) {
             try {
                 const { date, verse } = JSON.parse(storedVerseData);
-                if (date === today && verse) {
+                // Ensure all necessary verse properties exist
+                if (date === today && verse && verse.book && verse.chapter && verse.verse) {
                     verseOfTheDayCard.innerHTML = `
                         <div class="verse-card-header">
                             <h5 class="verse-card-title">오늘의 말씀</h5>
@@ -345,8 +386,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                         <p>"${verse.text}"</p>
                     `;
-                    verseOfTheDayCard.style.cursor = 'default';
+                    verseOfTheDayCard.style.cursor = 'pointer';
+                    verseOfTheDayCard.onclick = () => {
+                        navigateTo(`/read?book=${verse.book}&chapter=${verse.chapter}#verse-${verse.verse}`);
+                    };
                     return;
+                } else {
+                    // Data is corrupted or in old format, clear it
+                    localStorage.removeItem(VERSE_OF_THE_DAY_KEY);
                 }
             } catch (e) {
                 console.error("Failed to parse stored verse data", e);
@@ -381,13 +428,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 const randomVerseNum = Math.floor(Math.random() * verses.length);
                 const verseText = verses[randomVerseNum];
-                const bookName = randomBookPath.split('/')[1].replace('.json', '');
+                const bookName = randomBookPath.split('/')[2].replace('.json', '');
                 const verseNumber = randomVerseNum + 1;
                 const verseSource = `${bookName} ${randomChapterNum}:${verseNumber}`;
 
                 const newVerse = {
                     text: verseText,
-                    source: verseSource
+                    source: verseSource,
+                    book: bookName,
+                    chapter: randomChapterNum,
+                    verse: verseNumber
                 };
 
                 localStorage.setItem(VERSE_OF_THE_DAY_KEY, JSON.stringify({ date: today, verse: newVerse }));
@@ -399,7 +449,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <p>"${newVerse.text}"</p>
                 `;
-                verseOfTheDayCard.style.cursor = 'default';
+                verseOfTheDayCard.style.cursor = 'pointer'; // Make it clickable
+                verseOfTheDayCard.onclick = () => {
+                    navigateTo(`/read?book=${newVerse.book}&chapter=${newVerse.chapter}#verse-${newVerse.verse}`);
+                };
                 return;
 
             } catch (error) {
@@ -415,7 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function renderChapter(bookKey: string, chapter: number) {
-        const bookName = bookSelect.options[bookSelect.selectedIndex]?.text || bookSelect.value;
+        const bookName = bookKey;
         
         if (!chapter) {
             contentEl.innerHTML = '<p>장을 선택해주세요.</p>';
@@ -456,12 +509,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 const index = parseInt(verseNumEl.textContent || '0', 10) - 1;
                 const key = `${bookKey}-${chapter}-${index}`;
                 if (highlights[key]) {
-                    (verseEl as HTMLElement).style.backgroundColor = highlights[key];
+                    verseEl.classList.add('highlighted-verse');
                 }
             });
             
             const newPath = `/read?book=${bookKey}&chapter=${chapter}`;
             navigateTo(newPath, true);
+
+            // Scroll to specific verse if hash is present
+            const hash = window.location.hash;
+            if (hash.startsWith('#verse-')) {
+                const verseNum = parseInt(hash.substring(7), 10);
+                const targetVerseElement = contentEl.querySelector(`.verse:nth-child(${verseNum})`) as HTMLElement;
+                if (targetVerseElement) {
+                    targetVerseElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
 
         } catch (error) {
             console.error("Error rendering chapter:", error);
@@ -588,8 +651,18 @@ document.addEventListener('DOMContentLoaded', () => {
         bookView.classList.add('active');
         chapterView.classList.remove('active');
 
-        books.forEach((bookPath: string) => {
-            const bookName = bookPath.split('/')[1].replace('.json', '');
+        const oldTestamentBooks = books.filter(b => b.startsWith('/old/'));
+        const newTestamentBooks = books.filter(b => b.startsWith('/new/'));
+
+        const oldHeader = document.createElement('h4');
+        oldHeader.className = 'testament-header';
+        oldHeader.textContent = '구약';
+        bookView.appendChild(oldHeader);
+
+        const oldBookGrid = document.createElement('div');
+        oldBookGrid.className = 'book-selection-grid';
+        oldTestamentBooks.forEach((bookPath: string) => {
+            const bookName = bookPath.split('/')[2].replace('.json', '');
             const bookButton = document.createElement('button');
             bookButton.className = 'book-selection-button';
             bookButton.textContent = bookName;
@@ -597,8 +670,29 @@ document.addEventListener('DOMContentLoaded', () => {
             bookButton.addEventListener('click', () => {
                 showChaptersForBook(bookName);
             });
-            bookView.appendChild(bookButton);
+            oldBookGrid.appendChild(bookButton);
         });
+        bookView.appendChild(oldBookGrid);
+
+        const newHeader = document.createElement('h4');
+        newHeader.className = 'testament-header';
+        newHeader.textContent = '신약';
+        bookView.appendChild(newHeader);
+
+        const newBookGrid = document.createElement('div');
+        newBookGrid.className = 'book-selection-grid';
+        newTestamentBooks.forEach((bookPath: string) => {
+            const bookName = bookPath.split('/')[2].replace('.json', '');
+            const bookButton = document.createElement('button');
+            bookButton.className = 'book-selection-button';
+            bookButton.textContent = bookName;
+            bookButton.dataset.book = bookName;
+            bookButton.addEventListener('click', () => {
+                showChaptersForBook(bookName);
+            });
+            newBookGrid.appendChild(bookButton);
+        });
+        bookView.appendChild(newBookGrid);
 
         modal.classList.add('visible');
     }
@@ -635,11 +729,11 @@ document.addEventListener('DOMContentLoaded', () => {
             chapterButton.className = 'chapter-selection-button';
             chapterButton.textContent = String(i);
             chapterButton.dataset.chapter = String(i);
-            chapterButton.addEventListener('click', () => {
-                const chapter = parseInt(chapterButton.dataset.chapter || '0');
+            chapterButton.addEventListener('click', async () => {
+                const chapter = parseInt(chapterButton.dataset.chapter || '0', 10);
                 if (chapter) {
-                    bookSelect.value = bookName;
-                    renderChapter(bookName, chapter);
+                    await renderChapter(bookName, chapter);
+                    updateChapterNavigation();
                     closeChapterSelectionModal();
                 }
             });
@@ -794,6 +888,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     route(); // Determine which screen to show on initial load
+    updateReadingProgress(); // Update progress bar on initial load
 
     contentEl.addEventListener('click', (event) => {
         const verseElement = (event.target as HTMLElement).closest('.verse');

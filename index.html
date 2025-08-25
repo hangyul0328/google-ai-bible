@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>성경</title>
-    <link rel="stylesheet" href="index.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
@@ -15,7 +14,6 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
 <body>
     <div id="app-container">
@@ -30,12 +28,16 @@
                 <div class="home-header">
                     <!-- 아래가 실제 제목입니다. 십자가와 제목 사이 간격은 cross-decoration의 margin-bottom으로 조정합니다. -->
                     <h1 class="home-title">구원의 확신</h1>
-                    <h2 class="home-subtitle">오늘의 말씀</h2>
+                    
                 </div>
                 <div id="verse-of-the-day-card" title="클릭해서 새로운 구절 보기">
                     <div class="verse-placeholder">
                         <div class="shine"></div>
                     </div>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" id="reading-progress-bar"></div>
+                    <div class="progress-text" id="reading-progress-text">0%</div>
                 </div>
                 
             </div>
@@ -191,6 +193,6 @@
     </nav>
 
     <script type="module" src="index.tsx"></script>
-<script type="module" src="/index.tsx"></script>
+    <div id="verse-toolbar" class="verse-toolbar"></div>
 </body>
 </html>
