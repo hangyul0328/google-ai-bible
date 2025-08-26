@@ -1,3 +1,6 @@
+import { registerSW } from 'virtual:pwa-register';
+
+registerSW({ immediate: true });
 import './index.css';
 
 // 전역 함수로 햄버거 메뉴 토글 함수 추가
